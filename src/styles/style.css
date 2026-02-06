@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.sidebar-link {
+  @apply block px-4 py-2 rounded-lg text-slate-300
+  hover:bg-gradient-to-r hover:from-blue-600 hover:to-pink-600
+  hover:text-white transition;
+}
