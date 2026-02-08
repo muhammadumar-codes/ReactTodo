@@ -26,7 +26,7 @@ export default function Login() {
       alert('Login Successful 🎉')
 
       // Redirect to dashboard
-      navigate('/')
+      navigate('/dashboard')
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed')
     }

@@ -23,14 +23,14 @@ export default function NotFound() {
         {/* Action Buttons */}
         <div className="flex gap-4 justify-center">
           <Link
-            to="/"
+            to="/dashboard"
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:scale-105 transition-transform"
           >
             Go Home
           </Link>
 
           <Link
-            to="/login"
+            to="/"
             className="px-6 py-3 border border-slate-600 text-white rounded-xl hover:bg-slate-800 transition-colors"
           >
             Login
