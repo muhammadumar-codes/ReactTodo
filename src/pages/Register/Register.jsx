@@ -1,22 +1,22 @@
 import { useState } from 'react'
-import Button from '../../components/Button/button'
 import axios from 'axios'
+import Button from '../../components/Button/button'
+import { useNavigate } from 'react-router-dom'
 
 export default function Register() {
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
   })
+  const [loading, setLoading] = useState(false)
 
-  
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e) => {
@@ -26,18 +26,30 @@ export default function Register() {
       alert('Passwords do not match')
       return
     }
-    
-    try {
-      await axios.post('https://todo-backend-project.vercel.app/register', {
-        name: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-      })
 
+    setLoading(true)
+    try {
+      const res = await axios.post(
+        'https://todo-backend-api-livid.vercel.app/api/auth/register',
+        {
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }
+      )
+
+      localStorage.setItem('token', res.data.token)
       alert('Registered Successfully 🎉')
+
+      // Reset form
+      setFormData({ fullName: '', email: '', password: '', confirmPassword: '' })
+
+      // Redirect to login
+      navigate('/')
     } catch (error) {
       alert(error.response?.data?.message || 'Registration failed')
     }
+    setLoading(false)
   }
 
   return (
@@ -58,7 +70,7 @@ export default function Register() {
                 onChange={handleChange}
                 type="text"
                 placeholder="Full Name"
-                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none"
+                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none focus:border-blue-400 transition-all duration-300"
               />
               <label className="absolute left-0 -top-1 text-slate-400 text-sm">
                 Full Name
@@ -74,7 +86,7 @@ export default function Register() {
                 onChange={handleChange}
                 type="email"
                 placeholder="Email"
-                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none"
+                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none focus:border-blue-400 transition-all duration-300"
               />
               <label className="absolute left-0 -top-1 text-slate-400 text-sm">
                 Email
@@ -90,7 +102,7 @@ export default function Register() {
                 onChange={handleChange}
                 type="password"
                 placeholder="Password"
-                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none"
+                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none focus:border-blue-400 transition-all duration-300"
               />
               <label className="absolute left-0 -top-1 text-slate-400 text-sm">
                 Password
@@ -106,23 +118,27 @@ export default function Register() {
                 onChange={handleChange}
                 type="password"
                 placeholder="Confirm Password"
-                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none"
+                className="peer w-full bg-transparent border-b-2 border-slate-600 py-2 text-white placeholder-transparent focus:outline-none focus:border-blue-400 transition-all duration-300"
               />
               <label className="absolute left-0 -top-1 text-slate-400 text-sm">
                 Confirm Password
               </label>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-semibold rounded-xl"
-            >
-              Sign Up
-            </Button>
+            {/* Submit Button */}
+            <div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-semibold rounded-xl"
+              >
+                {loading ? 'Registering...' : 'Sign Up'}
+              </Button>
+            </div>
 
             <p className="text-center text-slate-300 text-sm mt-4">
               Already have an account?{' '}
-              <a href="/" className="text-blue-400">
+              <a href="/login" className="text-blue-400 hover:underline">
                 Sign in
               </a>
             </p>
