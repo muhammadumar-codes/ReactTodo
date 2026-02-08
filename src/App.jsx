@@ -2,7 +2,7 @@
 import './styles/style.css'
 
 // ===== Routes =====
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 // ===== Pages =====
 import Dashboard from './pages/Dashboard/Dashboard'
@@ -13,6 +13,12 @@ import Register from './pages/Register/Register'
 // ===== Layouts =====
 import DashboardLayout from './layouts/DashBoarrdLayout'
 import AuthLayout from './layouts/AuthLayout'
+
+// ===== Auth Guard =====
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token')
+  return token ? children : <Navigate to="/" replace />
+}
 
 export default function App() {
   return (
@@ -25,8 +31,15 @@ export default function App() {
       </Route>
 
       {/* ===== Dashboard Routes (WITH sidebar) ===== */}
-      <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
       </Route>
 
       {/* ===== Not Found ===== */}
