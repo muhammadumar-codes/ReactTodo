@@ -18,7 +18,7 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState(null)
-  const [messageType, setMessageType] = useState(null) // success | error
+  const [messageType, setMessageType] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
