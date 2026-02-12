@@ -18,7 +18,7 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState(null)
-  const [messageType, setMessageType] = useState(null) // success | error
+  const [messageType, setMessageType] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -35,6 +35,7 @@ export default function Login() {
       const res = await axios.post(API_URL, formData)
 
       localStorage.setItem('token', res.data.token)
+      localStorage.setItem('currentUser', JSON.stringify(res.data.user))
 
       showMessage('Login Successful ', 'success')
 
