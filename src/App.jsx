@@ -1,8 +1,8 @@
 // ===== CSS =====
 import './styles/style.css'
 
-// ===== Routes =====
-import { Routes, Route, Navigate } from 'react-router-dom'
+// ===== React Router =====
+import { Routes, Route } from 'react-router-dom'
 
 // ===== Pages =====
 import Dashboard from './pages/Dashboard/Dashboard'
@@ -14,34 +14,27 @@ import Register from './pages/Register/Register'
 import DashboardLayout from './layouts/DashBoarrdLayout'
 import AuthLayout from './layouts/AuthLayout'
 
-// ===== Auth Guard =====
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token')
-  return token ? children : <Navigate to="/" replace />
-}
+// ===== Route Guards =====
+import Private from './routes/Private'
+import Redirect from './routes/Redirect'
 
 export default function App() {
   return (
     <Routes>
-      {/* ===== Auth Routes (NO sidebar) ===== */}
-      <Route element={<AuthLayout />}>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Protected Routes */}
+      <Route element={<Private />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
       </Route>
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            {' '}
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
+      <Route element={<Redirect />}>
+        <Route element={<AuthLayout />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
       </Route>
 
-      {/* ===== Not Found ===== */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
