@@ -60,7 +60,7 @@ export default function Dashboard() {
       const res = await axios.post(
         `${API}/todos`,
         { title },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${token}` } }
       )
 
       setTodos([res.data.todo, ...todos])
@@ -110,7 +110,7 @@ export default function Dashboard() {
       const res = await axios.put(
         `${API}/todos/${id}`,
         { completed: !currentStatus },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${token}` } }
       )
 
       setTodos(todos.map((todo) => (todo._id === id ? res.data.todo : todo)))
@@ -129,11 +129,6 @@ export default function Dashboard() {
   const cancelEditing = () => {
     setEditingId(null)
     setEditTitle('')
-  }
-
-  const logout = () => {
-    localStorage.removeItem('token')
-    navigate('/')
   }
 
   // Filter and search todos
@@ -169,7 +164,9 @@ export default function Dashboard() {
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Your Todo Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Your Todo Dashboard
+            </h1>
             <p className="text-gray-600 mt-1">Stay organized and productive</p>
           </div>
           <div className="flex items-center gap-4">
@@ -177,12 +174,6 @@ export default function Dashboard() {
               <p className="text-sm text-gray-600">Welcome back!</p>
               <p className="font-medium text-gray-800">{todos.length} todos</p>
             </div>
-            <button
-              onClick={logout}
-              className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              Logout
-            </button>
           </div>
         </div>
 
@@ -192,7 +183,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 font-medium">Total Todos</p>
-                <p className="text-2xl font-bold text-gray-800">{todos.length}</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {todos.length}
+                </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-blue-600 font-bold">📋</span>
@@ -204,7 +197,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-600 font-medium">Completed</p>
-                <p className="text-2xl font-bold text-gray-800">{completedCount}</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {completedCount}
+                </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                 <span className="text-green-600 font-bold">✅</span>
@@ -216,7 +211,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 font-medium">Pending</p>
-                <p className="text-2xl font-bold text-gray-800">{pendingCount}</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {pendingCount}
+                </p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
                 <span className="text-orange-600 font-bold">⏳</span>
@@ -335,7 +332,9 @@ export default function Dashboard() {
                         : 'border-gray-300 hover:border-blue-500'
                     }`}
                   >
-                    {todo.completed && <span className="text-white text-sm">✓</span>}
+                    {todo.completed && (
+                      <span className="text-white text-sm">✓</span>
+                    )}
                   </button>
 
                   {/* Todo Content */}
@@ -351,7 +350,9 @@ export default function Dashboard() {
                         />
                         <div className="flex gap-2">
                           <button
-                            onClick={() => updateTodo(todo._id, { title: editTitle })}
+                            onClick={() =>
+                              updateTodo(todo._id, { title: editTitle })
+                            }
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                           >
                             Save
@@ -368,7 +369,9 @@ export default function Dashboard() {
                       <>
                         <h3
                           className={`text-lg font-medium ${
-                            todo.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                            todo.completed
+                              ? 'line-through text-gray-500'
+                              : 'text-gray-800'
                           }`}
                           onClick={() => startEditing(todo)}
                         >
