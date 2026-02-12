@@ -23,18 +23,17 @@ const ProtectedRoute = ({ children }) => {
 export default function App() {
   return (
     <Routes>
-
       {/* ===== Auth Routes (NO sidebar) ===== */}
       <Route element={<AuthLayout />}>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* ===== Dashboard Routes (WITH sidebar) ===== */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
+            {' '}
             <DashboardLayout />
           </ProtectedRoute>
         }
@@ -44,7 +43,6 @@ export default function App() {
 
       {/* ===== Not Found ===== */}
       <Route path="*" element={<NotFound />} />
-
     </Routes>
   )
 }
