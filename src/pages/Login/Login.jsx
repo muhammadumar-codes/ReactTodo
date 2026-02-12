@@ -35,6 +35,7 @@ export default function Login() {
       const res = await axios.post(API_URL, formData)
 
       localStorage.setItem('token', res.data.token)
+      localStorage.setItem('currentUser', JSON.stringify(res.data.user))
 
       showMessage('Login Successful ', 'success')
 

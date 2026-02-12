@@ -38,8 +38,7 @@ export default function Header() {
           Dashboard
         </h1>
         <p className="text-slate-300 mt-1 text-sm md:text-base">
-          Welcome back,{' '}
-          <span className="font-semibold">{currentUser || 'User'}</span> 👋
+          Welcome :, <span className="font-semibold">{currentUser}</span>
         </p>
       </div>
 
