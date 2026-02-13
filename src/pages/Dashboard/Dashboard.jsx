@@ -1,3 +1,5 @@
+import { motion, AnimatePresence } from 'framer-motion'
+
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { FaClipboardList } from 'react-icons/fa6'
@@ -20,7 +22,6 @@ import {
 } from 'react-icons/fa'
 
 import { MdDashboard, MdClearAll } from 'react-icons/md'
-import { motion, AnimatePresence } from 'framer-motion' // For silky smooth animations
 
 const API = 'https://todo-backend-api-livid.vercel.app/api'
 
@@ -63,7 +64,7 @@ export default function Dashboard() {
       setTodos(res.data.todos)
       setLoading(false)
     } catch (err) {
-      showToast('Failed to fetch todos. Please try again.', 'error')
+      showToast('Failed to fetch todos. Please try again.', err)
       logout()
     }
   }
@@ -99,7 +100,7 @@ export default function Dashboard() {
       setTitle('')
       showToast('Todo added successfully!', 'success')
     } catch (err) {
-      showToast('Failed to add todo. Please try again.', 'error')
+      showToast('Failed to add todo. Please try again.', err)
     }
   }
 
@@ -114,7 +115,7 @@ export default function Dashboard() {
       setEditTitle('')
       showToast('Todo updated successfully!', 'success')
     } catch (err) {
-      showToast('Failed to update todo.', 'error')
+      showToast('Failed to update todo.', err)
     }
   }
 
@@ -130,7 +131,7 @@ export default function Dashboard() {
         setTodos(todos.filter((todo) => todo._id !== id))
         showToast('Todo deleted successfully!', 'success')
       } catch (err) {
-        showToast('Failed to delete todo.', 'error')
+        showToast('Failed to delete todo.', err)
       } finally {
         setDeletingId(null)
       }
@@ -158,7 +159,7 @@ export default function Dashboard() {
     } catch (err) {
       // Rollback on error
       setTodos(todos)
-      showToast('Failed to update todo status.', 'error')
+      showToast('Failed to update todo status.', err)
     }
   }
 
@@ -185,7 +186,7 @@ export default function Dashboard() {
         )
       )
     } catch (err) {
-      showToast('Some todos could not be cleared. Please refresh.', 'error')
+      showToast('Some todos could not be cleared. Please refresh.', err)
       fetchTodos() // Revert to server state
     }
   }
