@@ -1,9 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
-
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import { FaClipboardList } from 'react-icons/fa6'
-
 import { useNavigate } from 'react-router-dom'
 import {
   FaPlus,
@@ -19,8 +17,9 @@ import {
   FaExclamationTriangle,
   FaTimesCircle,
   FaClipboardCheck,
+  FaMicrophone,
+  FaStop,
 } from 'react-icons/fa'
-
 import { MdDashboard, MdClearAll } from 'react-icons/md'
 
 const API = 'https://todo-backend-api-livid.vercel.app/api'
@@ -37,6 +36,12 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState(null) // For delete animation
   const [toast, setToast] = useState({ show: false, message: '', type: '' }) // Custom toast
   const [showClearConfirm, setShowClearConfirm] = useState(false) // Confirmation modal for clear completed
+
+  // Voice recognition states
+  const [isListening, setIsListening] = useState(false)
+  const [voiceSupported, setVoiceSupported] = useState(true)
+  const recognitionRef = useRef(null)
+
   const navigate = useNavigate()
 
   // ----- Load token -----
@@ -55,6 +60,76 @@ export default function Dashboard() {
     fetchTodos()
   }, [token, navigate])
 
+  // ----- Initialize voice recognition -----
+  useEffect(() => {
+    // Check if browser supports SpeechRecognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = false
+      recognitionRef.current.interimResults = false
+      recognitionRef.current.lang = 'en-US'
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        setTitle(transcript)
+        setIsListening(false)
+        showToast('Voice captured! Click "Add Todo" to save.', 'info')
+      }
+
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error:', event.error)
+        setIsListening(false)
+        if (event.error === 'not-allowed') {
+          showToast(
+            'Microphone access denied. Please allow microphone access.',
+            'error'
+          )
+        } else {
+          showToast('Voice recognition failed. Please try again.', 'error')
+        }
+      }
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false)
+      }
+    } else {
+      setVoiceSupported(false)
+    }
+
+    // Cleanup
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort()
+      }
+    }
+  }, [])
+
+  // ----- Voice recognition handlers -----
+  const startListening = () => {
+    if (!voiceSupported) {
+      showToast('Voice recognition is not supported in your browser.', 'error')
+      return
+    }
+
+    try {
+      recognitionRef.current.start()
+      setIsListening(true)
+      showToast('Listening... Speak your todo now.', 'info')
+    } catch (error) {
+      console.error('Failed to start recognition:', error)
+      showToast('Failed to start voice recognition.', 'error')
+    }
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.abort()
+      setIsListening(false)
+    }
+  }
+
   // ----- Fetch todos -----
   const fetchTodos = async () => {
     try {
@@ -64,7 +139,7 @@ export default function Dashboard() {
       setTodos(res.data.todos)
       setLoading(false)
     } catch (err) {
-      showToast('Failed to fetch todos. Please try again.', err)
+      showToast('Failed to fetch todos. Please try again.', 'error')
       logout()
     }
   }
@@ -100,7 +175,7 @@ export default function Dashboard() {
       setTitle('')
       showToast('Todo added successfully!', 'success')
     } catch (err) {
-      showToast('Failed to add todo. Please try again.', err)
+      showToast('Failed to add todo. Please try again.', 'error')
     }
   }
 
@@ -115,7 +190,7 @@ export default function Dashboard() {
       setEditTitle('')
       showToast('Todo updated successfully!', 'success')
     } catch (err) {
-      showToast('Failed to update todo.', err)
+      showToast('Failed to update todo.', 'error')
     }
   }
 
@@ -131,7 +206,7 @@ export default function Dashboard() {
         setTodos(todos.filter((todo) => todo._id !== id))
         showToast('Todo deleted successfully!', 'success')
       } catch (err) {
-        showToast('Failed to delete todo.', err)
+        showToast('Failed to delete todo.', 'error')
       } finally {
         setDeletingId(null)
       }
@@ -159,7 +234,7 @@ export default function Dashboard() {
     } catch (err) {
       // Rollback on error
       setTodos(todos)
-      showToast('Failed to update todo status.', err)
+      showToast('Failed to update todo status.', 'error')
     }
   }
 
@@ -186,7 +261,7 @@ export default function Dashboard() {
         )
       )
     } catch (err) {
-      showToast('Some todos could not be cleared. Please refresh.', err)
+      showToast('Some todos could not be cleared. Please refresh.', 'error')
       fetchTodos() // Revert to server state
     }
   }
@@ -381,7 +456,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* --- Add Todo Form with icon and floating effect --- */}
+        {/* --- Add Todo Form with icon, floating effect, and voice input --- */}
         <form onSubmit={addTodo} className="mb-8">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
@@ -389,10 +464,34 @@ export default function Dashboard() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="What needs to be done?"
-                className="w-full px-6 py-4 pl-14 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-2xl focus:border-blue-400 focus:ring-4 focus:ring-blue-200/50 outline-none transition-all duration-300 shadow-sm hover:shadow-md"
+                placeholder={
+                  isListening
+                    ? 'Listening... Speak now'
+                    : 'What needs to be done?'
+                }
+                className="w-full px-6 py-4 pl-14 pr-14 bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-2xl focus:border-blue-400 focus:ring-4 focus:ring-blue-200/50 outline-none transition-all duration-300 shadow-sm hover:shadow-md"
               />
               <FaClipboardList className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+              {/* Voice input button */}
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={isListening ? stopListening : startListening}
+                className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-all duration-200 ${
+                  isListening
+                    ? 'bg-red-500 text-white animate-pulse'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                }`}
+                title={isListening ? 'Stop listening' : 'Start voice input'}
+              >
+                {isListening ? (
+                  <FaStop className="w-4 h-4" />
+                ) : (
+                  <FaMicrophone className="w-4 h-4" />
+                )}
+              </motion.button>
             </div>
             <motion.button
               whileHover={{ scale: 1.03 }}
@@ -404,6 +503,14 @@ export default function Dashboard() {
               Add Todo
             </motion.button>
           </div>
+
+          {/* Voice hint */}
+          {!voiceSupported && (
+            <p className="text-xs text-yellow-600 mt-2">
+              ⚠️ Voice recognition is not supported in your browser. Please use
+              Chrome, Edge, or Safari.
+            </p>
+          )}
         </form>
 
         {/* --- Filter & Search bar with icons --- */}
