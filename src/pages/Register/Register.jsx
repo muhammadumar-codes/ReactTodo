@@ -42,6 +42,7 @@ export default function Register() {
         name: formData.fullName,
         email: formData.email,
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
       })
 
       localStorage.setItem('token', res.data.token)
