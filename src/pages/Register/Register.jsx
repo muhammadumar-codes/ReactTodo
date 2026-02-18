@@ -72,7 +72,7 @@ export default function Register() {
     }
   }
 
-  // 💎 Show Animated Message
+  //  Show Animated Message
   const showMessage = (msg, type) => {
     setMessage(msg)
     setMessageType(type)
