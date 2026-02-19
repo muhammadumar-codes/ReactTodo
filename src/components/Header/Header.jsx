@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import {
-  FiLogOut,
-  FiUser,
-  FiSettings,
-  FiHelpCircle,
-  FiChevronDown,
-} from 'react-icons/fi'
+import { FiLogOut, FiChevronDown } from 'react-icons/fi'
 import { MdDashboard } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
@@ -189,9 +183,7 @@ export default function Header() {
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {currentUser}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {currentUser.toLowerCase().replace(/\s+/g, '.')}@example.com
-                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5"></p>
                 </div>
 
                 {/* Menu items */}
