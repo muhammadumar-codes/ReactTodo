@@ -68,7 +68,7 @@ export default function Login() {
             Login
           </h1>
 
-          {/* 🔥 Animated Message */}
+          {/*  Animated Message */}
           {message && (
             <div
               className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-500 animate-slideIn

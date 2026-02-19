@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FiBell, FiUser, FiLogOut } from 'react-icons/fi'
+import { FiBell, FiLogOut } from 'react-icons/fi'
 
 export default function Header() {
   // ===== State for live date/time =====
@@ -23,24 +23,31 @@ export default function Header() {
 
   // ===== Dynamic user from localStorage =====
   const [currentUser, setCurrentUser] = useState('User')
+  const [avatarUrl, setAvatarUrl] = useState(null)
 
   useEffect(() => {
     const userData = localStorage.getItem('currentUser')
     if (userData) {
-      setCurrentUser(JSON.parse(userData)?.name || 'User')
+      const parsedUser = JSON.parse(userData)
+      setCurrentUser(parsedUser?.name || 'User')
+      setAvatarUrl(parsedUser?.avatar || null)
     }
 
     // Listen for changes (logout/login from another tab)
     const handleStorage = () => {
       const updatedUser = localStorage.getItem('currentUser')
-      setCurrentUser(updatedUser ? JSON.parse(updatedUser)?.name : 'User')
+      if (updatedUser) {
+        const parsed = JSON.parse(updatedUser)
+        setCurrentUser(parsed?.name || 'User')
+        setAvatarUrl(parsed?.avatar || null)
+      } else {
+        setCurrentUser('User')
+        setAvatarUrl(null)
+      }
     }
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
-
-  // Avatar placeholder (first letter)
-  const avatarLetter = currentUser.charAt(0).toUpperCase()
 
   // ===== Logout handler =====
   const handleLogout = () => {
@@ -66,22 +73,28 @@ export default function Header() {
 
       {/* Right Section: Notifications + User */}
       <div className="flex items-center gap-4 mt-4 md:mt-0">
-        {/* Notifications */}
-        <button className="relative text-white text-xl hover:text-blue-400 transition-colors">
-          <FiBell />
+        {/* Notifications: show user's avatar instead */}
+        <div className="relative w-10 h-10">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={currentUser}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white"
+            />
+          ) : (
+            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white font-bold border-2 border-white">
+              {currentUser.charAt(0).toUpperCase()}
+            </div>
+          )}
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-        </button>
+        </div>
 
-        {/* User Avatar & Dropdown */}
+        {/* User Dropdown */}
         <div className="relative group">
           <div className="flex items-center gap-2 cursor-pointer bg-slate-800/50 backdrop-blur-md px-3 py-1 rounded-full border border-slate-700 transition-all hover:bg-slate-700">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white font-bold">
-              {avatarLetter}
-            </div>
             <span className="text-white font-medium hidden sm:block">
               {currentUser}
             </span>
-            <FiUser className="text-white hidden sm:block" />
           </div>
 
           {/* Dropdown menu */}

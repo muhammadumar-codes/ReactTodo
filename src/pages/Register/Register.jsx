@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 // API URL
 const API_URL = 'https://todo-backend-api-livid.vercel.app/api/auth/register'
 
-// REGISTER FORM
 export default function Register() {
   const navigate = useNavigate()
 
@@ -17,6 +16,8 @@ export default function Register() {
     confirmPassword: '',
   })
 
+  const [avatar, setAvatar] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState(null)
   const [messageType, setMessageType] = useState(null)
@@ -24,6 +25,19 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  // 💫 Handle avatar file & preview
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0]
+    setAvatar(file)
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = () => setAvatarPreview(reader.result)
+      reader.readAsDataURL(file)
+    } else {
+      setAvatarPreview(null)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -38,29 +52,33 @@ export default function Register() {
     try {
       setLoading(true)
 
-      const res = await axios.post(API_URL, {
-        name: formData.fullName,
-        email: formData.email,
-        password: formData.password,
+      const data = new FormData()
+      data.append('name', formData.fullName)
+      data.append('email', formData.email)
+      data.append('password', formData.password)
+      data.append('confirmPassword', formData.confirmPassword)
+      if (avatar) data.append('avatar', avatar)
+
+      const res = await axios.post(API_URL, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
 
       localStorage.setItem('token', res.data.token)
+      localStorage.setItem('currentUser', JSON.stringify(res.data.user))
 
-      showMessage('User registered successfully ', 'success')
+      showMessage('User registered successfully', 'success')
 
       // Reset form
-
       setFormData({
         fullName: '',
         email: '',
         password: '',
         confirmPassword: '',
       })
+      setAvatar(null)
+      setAvatarPreview(null)
 
-      // Redirect after animation
-      setTimeout(() => {
-        navigate('/')
-      }, 2000)
+      setTimeout(() => navigate('/'), 2000)
     } catch (error) {
       showMessage(
         error.response?.data?.message || 'Registration failed',
@@ -71,11 +89,9 @@ export default function Register() {
     }
   }
 
-  // 💎 Show Animated Message
   const showMessage = (msg, type) => {
     setMessage(msg)
     setMessageType(type)
-
     setTimeout(() => {
       setMessage(null)
       setMessageType(null)
@@ -85,7 +101,21 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-4">
       <div className="w-full max-w-sm">
-        <div className="bg-slate-900/80 backdrop-blur-lg rounded-2xl p-8 shadow-[0_15px_30px_rgba(0,0,0,0.5)] border border-slate-700 relative overflow-hidden">
+        <div className="bg-slate-900/80 backdrop-blur-lg rounded-3xl p-8 shadow-[0_20px_40px_rgba(0,0,0,0.6)] border border-slate-700 relative overflow-hidden">
+          <div className="flex justify-center -mt-16 mb-6">
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar Preview"
+                className="w-28 h-28 rounded-full object-cover border-4 border-blue-500 shadow-xl"
+              />
+            ) : (
+              <div className="w-28 h-28 rounded-full bg-slate-700 flex items-center justify-center text-white text-2xl font-bold border-4 border-slate-500 shadow-xl">
+                ?
+              </div>
+            )}
+          </div>
+
           <h1 className="text-3xl font-extrabold text-white text-center mb-8 tracking-wide">
             Register
           </h1>
@@ -168,6 +198,19 @@ export default function Register() {
               </label>
             </div>
 
+            {/* Avatar Upload */}
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="w-full text-white"
+              />
+              <label className="absolute left-0 -top-1 text-slate-400 text-sm">
+                Upload Avatar
+              </label>
+            </div>
+
             {/* Submit */}
             <Button
               type="submit"
@@ -196,7 +239,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* 💫 Slide Animation */}
       <style>
         {`
           @keyframes slideIn {
