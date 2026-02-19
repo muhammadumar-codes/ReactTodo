@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { FiLogOut, FiChevronDown } from 'react-icons/fi'
+import {
+  FiLogOut,
+  FiUser,
+  FiSettings,
+  FiHelpCircle,
+  FiChevronDown,
+} from 'react-icons/fi'
 import { MdDashboard } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
